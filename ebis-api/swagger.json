@@ -39,7 +39,7 @@
       "post" : {
         "tags" : [ "Notification API" ],
         "summary" : "Publish an event.",
-        "description" : "Publish an event when an action is happened on a product in order to notify the other products.",
+        "description" : "Publish a notification against a event. All those who have subscribed to the event will receive notification. The payload that is provided in the Publish will be passed on to each of the subscribers.",
         "operationId" : "PublishNotificationEvent",
         "parameters" : [ {
           "in" : "body",
@@ -64,7 +64,7 @@
         "operationId" : "SubscribeNotificationEvent",
         "parameters" : [ {
           "in" : "body",
-          "name" : "SubscribeEvent",
+          "name" : "SubscribeEventRequest",
           "required" : false,
           "schema" : {
             "$ref" : "#/definitions/SubscribeEventRequest"
@@ -72,7 +72,10 @@
         } ],
         "responses" : {
           "200" : {
-            "description" : "Eb Event Subscription Id"
+            "description" : "Eb Event Subscription Id",
+            "schema" : {
+              "$ref" : "#/definitions/SubscribeEventResponse"
+            }
           }
         }
       }
@@ -284,19 +287,13 @@
         }
       }
     },
-    "/institution/{ebInstitutionId}/query" : {
+    "/query" : {
       "post" : {
         "tags" : [ "Query API" ],
         "summary" : "Query for data",
         "description" : "The Query API will allow a user to query data from services(like admissions, enrollment etc) offered by EB products.  It also provides means to retrieve information of various types including member (student, parent, staff), household, admission, enrollment etc",
         "operationId" : "GetQueryRequest",
         "parameters" : [ {
-          "name" : "ebInstitutionId",
-          "in" : "path",
-          "description" : "The Education brands institution id",
-          "required" : true,
-          "type" : "string"
-        }, {
           "in" : "body",
           "name" : "GetQueryRequest",
           "required" : false,
@@ -314,7 +311,7 @@
         }
       }
     },
-    "/acknowledgeNotification" : {
+    "/productBaseUrl/acknowledgeNotification" : {
       "post" : {
         "tags" : [ "Product Endpoints" ],
         "summary" : "Acknowledge event notification",
@@ -335,7 +332,7 @@
         }
       }
     },
-    "/notification" : {
+    "/productBaseUrl/notification" : {
       "post" : {
         "tags" : [ "Product Endpoints" ],
         "summary" : "Get the notifications for an event",
@@ -356,7 +353,7 @@
         }
       }
     },
-    "/query" : {
+    "/productBaseUrl/query" : {
       "post" : {
         "tags" : [ "Product Endpoints" ],
         "summary" : "Get Data based on query",
@@ -380,7 +377,7 @@
         }
       }
     },
-    "/errorNotification" : {
+    "/productBaseUrl/errorNotification" : {
       "post" : {
         "tags" : [ "Product Endpoints" ],
         "summary" : "Error notifications",
@@ -424,7 +421,7 @@
     "SubscribeEventRequest" : {
       "type" : "object",
       "properties" : {
-        "productID" : {
+        "ebProductID" : {
           "type" : "string",
           "example" : "xxui-23jy-34dte",
           "description" : "EBID of the product the requesting product"
@@ -434,40 +431,40 @@
           "example" : "TADS",
           "description" : "Name of the product"
         },
-        "InstitutionId" : {
+        "ebInstitutionId" : {
           "type" : "string",
           "example" : "uihw-23dcrc-3wdcdc",
           "description" : "EB Institution Id"
         },
-        "InstitutionName" : {
+        "institutionName" : {
           "type" : "string",
           "example" : "Donahue",
           "description" : "Institution Name"
         },
-        "EventName" : {
+        "eventName" : {
           "type" : "string",
           "example" : "StudentAdmitted",
           "description" : "Name of the published event"
         },
-        "Protocol" : {
+        "protocol" : {
           "type" : "string",
           "example" : "http",
           "description" : "Http protocol used"
         },
-        "FilterPolicy" : {
-          "$ref" : "#/definitions/SubscribeEventRequest_FilterPolicy"
+        "filterPolicy" : {
+          "$ref" : "#/definitions/FilterPolicy"
         }
       },
       "example" : {
-        "productID" : "xxui-23jy-34dte",
-        "InstitutionName" : "Donahue",
-        "FilterPolicy" : {
-          "RoleType" : "Student",
-          "EBproductId" : "http"
+        "protocol" : "http",
+        "ebProductID" : "xxui-23jy-34dte",
+        "institutionName" : "Donahue",
+        "ebInstitutionId" : "uihw-23dcrc-3wdcdc",
+        "filterPolicy" : {
+          "values" : [ "", "" ],
+          "key" : "StandardDataType"
         },
-        "InstitutionId" : "uihw-23dcrc-3wdcdc",
-        "EventName" : "StudentAdmitted",
-        "Protocol" : "http",
+        "eventName" : "StudentAdmitted",
         "productName" : "TADS"
       }
     },
@@ -479,12 +476,15 @@
           "example" : "xxui-23jy-34dte",
           "description" : "Eb Event Subscription Id"
         }
+      },
+      "example" : {
+        "EbEventSubscriptionId" : "xxui-23jy-34dte"
       }
     },
     "PublishEventRequest" : {
       "type" : "object",
       "properties" : {
-        "productID" : {
+        "ebProductID" : {
           "type" : "string",
           "example" : "xxui-23jy-34dte",
           "description" : "EBID of the product"
@@ -494,48 +494,48 @@
           "example" : "TADS",
           "description" : "Name of the product"
         },
-        "InstitutionId" : {
+        "ebInstitutionId" : {
           "type" : "string",
           "example" : "uihw-23dcrc-3wdcdc",
           "description" : "EB Institution Id"
         },
-        "InstitutionName" : {
+        "institutionName" : {
           "type" : "string",
           "example" : "Donahue",
           "description" : "Institution Name"
         },
-        "EventName" : {
+        "eventName" : {
           "type" : "string",
-          "example" : "StudentAdmitted",
+          "example" : "Student_Admitted",
           "description" : "Name of the published event"
         },
-        "AcknowledgementRequired" : {
+        "acknowledgementRequired" : {
           "type" : "boolean",
           "example" : true,
           "description" : "Is acknowledgement required"
         },
         "Payload" : {
           "type" : "string",
-          "example" : "Standard payload",
+          "example" : "{'Student':{'EbUserId':'777333','Admission':{'DateOfAdmission':'2018-01-26',....'}}}",
           "description" : "Message to be publish"
         }
       },
       "example" : {
-        "productID" : "xxui-23jy-34dte",
-        "InstitutionName" : "Donahue",
-        "InstitutionId" : "uihw-23dcrc-3wdcdc",
-        "AcknowledgementRequired" : true,
-        "Payload" : "Standard payload",
-        "EventName" : "StudentAdmitted",
+        "ebProductID" : "xxui-23jy-34dte",
+        "acknowledgementRequired" : true,
+        "institutionName" : "Donahue",
+        "ebInstitutionId" : "uihw-23dcrc-3wdcdc",
+        "eventName" : "Student_Admitted",
+        "Payload" : "{'Student':{'EbUserId':'777333','Admission':{'DateOfAdmission':'2018-01-26',....'}}}",
         "productName" : "TADS"
       }
     },
     "PublishEventResponse" : {
       "type" : "object",
       "properties" : {
-        "productID" : {
+        "ebPublishedEventId" : {
           "type" : "string",
-          "example" : "xxui-23jy-34dte",
+          "example" : "yyui-23jy-34dte",
           "description" : "EBID of the event published"
         }
       }
@@ -705,17 +705,15 @@
           "example" : "SchoolSpeak Training Academy",
           "description" : "Name of the institution"
         },
+        "ebInstitutionId" : {
+          "type" : "string",
+          "example" : "SchoolSpeak Training Academy",
+          "description" : "Name of the institution"
+        },
         "RecordType" : {
           "type" : "string",
           "example" : "Student",
-          "description" : "The Standard Data Set name to be queried"
-        },
-        "Filters" : {
-          "type" : "array",
-          "description" : "Array of conditions to filter the result data",
-          "items" : {
-            "$ref" : "#/definitions/Filters"
-          }
+          "description" : "The name of the Standard Data Set type to be queried"
         },
         "sections" : {
           "type" : "array",
@@ -724,19 +722,27 @@
             "type" : "string",
             "example" : ""
           }
+        },
+        "filters" : {
+          "type" : "array",
+          "description" : "Array of conditions to filter the result data",
+          "items" : {
+            "$ref" : "#/definitions/Filters"
+          }
         }
       },
       "example" : {
-        "Filters" : [ {
+        "RecordType" : "Student",
+        "ebProductId" : "03",
+        "institutionName" : "SchoolSpeak Training Academy",
+        "ebInstitutionId" : "SchoolSpeak Training Academy",
+        "filters" : [ {
           "Value" : "Applied",
           "Key" : "Admission-Status"
         }, {
           "Value" : "Applied",
           "Key" : "Admission-Status"
         } ],
-        "RecordType" : "Student",
-        "ebProductId" : "03",
-        "institutionName" : "SchoolSpeak Training Academy",
         "productName" : "Ravenna",
         "sections" : [ "", "" ]
       }
@@ -983,6 +989,29 @@
         "EBProductId" : "7756c3c-22c2-41d9-b1d9-27444586011"
       }
     },
+    "FilterPolicy" : {
+      "type" : "object",
+      "properties" : {
+        "key" : {
+          "type" : "string",
+          "example" : "StandardDataType",
+          "description" : "A key for this policy"
+        },
+        "values" : {
+          "type" : "array",
+          "description" : "A list of values to match",
+          "items" : {
+            "type" : "string",
+            "example" : ""
+          }
+        }
+      },
+      "description" : "A filter policy to be applied",
+      "example" : {
+        "values" : [ "", "" ],
+        "key" : "StandardDataType"
+      }
+    },
     "inline_response_200" : {
       "properties" : {
         "ebProductId" : {
@@ -992,25 +1021,6 @@
       },
       "example" : {
         "ebProductId" : "3456dc3c-22c2-41c9-b1d9-8455f4660111"
-      }
-    },
-    "SubscribeEventRequest_FilterPolicy" : {
-      "properties" : {
-        "EBproductId" : {
-          "type" : "string",
-          "example" : "http",
-          "description" : "EBID of the product"
-        },
-        "RoleType" : {
-          "type" : "string",
-          "example" : "Student",
-          "description" : "additional filter"
-        }
-      },
-      "description" : "Request filtering parameters",
-      "example" : {
-        "RoleType" : "Student",
-        "EBproductId" : "http"
       }
     }
   },
