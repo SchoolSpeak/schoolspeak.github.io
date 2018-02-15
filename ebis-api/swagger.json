@@ -35,7 +35,7 @@
   "consumes" : [ "application/json" ],
   "produces" : [ "application/json" ],
   "paths" : {
-    "/events/publish" : {
+    "/notifications/publish" : {
       "post" : {
         "tags" : [ "Notification API" ],
         "summary" : "Publish an event.",
@@ -56,7 +56,7 @@
         }
       }
     },
-    "/events/subscribe" : {
+    "/notifications/subscribe" : {
       "post" : {
         "tags" : [ "Notification API" ],
         "summary" : "Subscribe to a published event",
