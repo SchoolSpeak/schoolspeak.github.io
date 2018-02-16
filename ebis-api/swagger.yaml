@@ -1,11 +1,11 @@
 swagger: '2.0'
 info:
   description: |
-    The integration framework is an attempt to define a standard and simple socket each brand can plug in to interact with other EB products. It defines what each product needs to do to integrate with other products. It has a set of API to interact with other products and what each product should implement to receive communication from other products.
-    
-    The integration framework is facilitated by the integration Hub. The integration Hub records what products and services each institution subscribes and routes interaction between products serving an institution
-    
-    This is an API documentation for Education Brands IntegrationService APIs.    
+    The integration framework is an attempt to define a standard and simple socket each brand can plug in to interact with other EB products. It defines what each product needs to do to integrate with other products. It has a set of API to interact with other products and what each product should implement to receive communication from other products. This is an API specification detailing the APIs for Education Brands IntegrationService.
+
+    Most of these APIs will be implemented in EBIS.  The APIs in the 'Product Endpoints' section has to be implemented by each of the Products.
+
+    <b>NOTE - <i>This specification is still in early development stage and is subject to change without notice.</i></b>
   version: 1.0.0
   title: Education Brands Integration Service APIs
   termsOfService: http://swagger.io/terms/
