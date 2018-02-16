@@ -1,845 +1,808 @@
----
-swagger: "2.0"
+swagger: '2.0'
 info:
-  description: "This is an API documentation for Education Brands IntegrationService\
-    \ APIs.\n"
-  version: "1.0.0"
-  title: "Education Brands Integration Service APIs"
-  termsOfService: "http://swagger.io/terms/"
+  description: |
+    The integration framework is an attempt to define a standard and simple socket each brand can plug in to interact with other EB products. It defines what each product needs to do to integrate with other products. It has a set of API to interact with other products and what each product should implement to receive communication from other products.
+    
+    The integration framework is facilitated by the integration Hub. The integration Hub records what products and services each institution subscribes and routes interaction between products serving an institution
+    
+    This is an API documentation for Education Brands IntegrationService APIs.    
+  version: 1.0.0
+  title: Education Brands Integration Service APIs
+  termsOfService: http://swagger.io/terms/
   contact:
-    email: "sobin@schoolspeak.com"
-  license:
-    name: "Apache 2.0"
-    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: "virtserver.swaggerhub.com"
-basePath: "/EducationBrands/EBIS/1.0.0"
-tags:
-- name: "Product APIs"
-  description: "APIs fo registering products with EBIS"
-- name: "Institution APIs"
-  description: "APIs for registering Institutions with EBIS"
-- name: "Query API"
-  description: "APIs to Query da from other products via EBIS"
-- name: "Notification API"
-  description: "APIs to publish and subscribe to notifications to/from EBIS"
-- name: "Product Endpoints"
-  description: "Endpoints that must be implemented by the product in-order to communicate\
-    \ with EBIS"
-schemes:
-- "https"
-- "http"
+    email: sobin@schoolspeak.com
 consumes:
-- "application/json"
+  - application/json
+  - application/xml
 produces:
-- "application/json"
+  - application/json
+  - application/xml
+  
+# Added by API Auto Mocking Plugin
+host: virtserver.swaggerhub.com
+basePath: /EducationBrands/EBIS/1.0.0
+schemes:
+ - https
+ - http
+ 
+tags:
+- name: Product  
+  description: APIs fo registering products with EBIS
+- name: Institution
+  description: APIs for registering Institutions with EBIS
+- name: Data Exchange
+  description: APIs to Pull data (Query) and Push data (Notification) from/to other products via EBIS
+- name: Product Endpoints
+  description: Endpoints that must be implemented by the product in-order to communicate with EBIS
+
 paths:
-  /notifications/publish:
-    post:
-      tags:
-      - "Notification API"
-      summary: "Publish an event."
-      description: "Publish a notification against a event. All those who have subscribed\
-        \ to the event will receive notification. The payload that is provided in\
-        \ the Publish will be passed on to each of the subscribers."
-      operationId: "PublishNotificationEvent"
-      parameters:
-      - in: "body"
-        name: "PublishEvent"
-        required: false
-        schema:
-          $ref: "#/definitions/PublishEventRequest"
-      responses:
-        200:
-          description: "EBIS published Event token"
-  /notifications/subscribe:
-    post:
-      tags:
-      - "Notification API"
-      summary: "Subscribe to a published event"
-      description: "Inorder to get the notifications for an event, the product has\
-        \ to subscribe for that event."
-      operationId: "SubscribeNotificationEvent"
-      parameters:
-      - in: "body"
-        name: "SubscribeEventRequest"
-        required: false
-        schema:
-          $ref: "#/definitions/SubscribeEventRequest"
-      responses:
-        200:
-          description: "Eb Event Subscription Id"
-          schema:
-            $ref: "#/definitions/SubscribeEventResponse"
-  /products:
+
+# Product APIs
+
+  /products:   
+    parameters:        
+      - $ref: "#/parameters/AuthorizationHeaderParam"  
     get:
-      tags:
-      - "Product APIs"
-      summary: "Get list of EB products"
-      operationId: "getProducts"
-      parameters: []
+      tags: 
+      - Product
+      summary: Get list of EB products
+      operationId: getProducts      
       responses:
         200:
-          description: "List of products registered with EBIS"
+          description: List of products registered with EBIS
           schema:
-            type: "array"
+            type: array
             items:
               $ref: "#/definitions/Product"
+      
     post:
       tags:
-      - "Product APIs"
-      summary: "Register a new product"
-      operationId: "postProduct"
+      - Product
+      summary: Register a new product
+      operationId: postProduct
       parameters:
-      - in: "body"
-        name: "RegisterProductRequest"
-        required: false
-        schema:
-          $ref: "#/definitions/Product"
-      responses:
-        200:
-          description: "Product registered successfully with EBIS"
+        - in: body
+          name: RegisterProductRequest
           schema:
-            $ref: "#/definitions/inline_response_200"
-  /products/{ebProductId}:
+            $ref: "#/definitions/Product"
+      responses: 
+        200:
+          description: Product registered successfully with EBIS
+          schema:
+            type: object
+            properties:
+              ebProductId:
+                type: string
+                example: "3456dc3c-22c2-41c9-b1d9-8455f4660111"
+  
+  /products/{ebProductId}:    
     get:
       tags:
-      - "Product APIs"
-      summary: "Get a product by EB Id"
-      description: "Gets the details of a product by its Ebucation Brands Id"
-      operationId: "getProductById"
+      - Product
+      summary: Get a product by EB Id
+      description: Gets the details of a product by its Ebucation Brands Id
+      operationId: getProductById
       parameters:
-      - name: "ebProductId"
-        in: "path"
-        description: "The Education brands product id"
-        required: true
-        type: "string"
+        - $ref: "#/parameters/AuthorizationHeaderParam"
+        - in: path
+          name: ebProductId
+          description: "The Education brands product id"
+          required: true
+          type: string
       responses:
         200:
           description: "OK. The product details as registered with EBIS"
+          schema: 
+            $ref: "#/definitions/Product"  
+        404:
+          $ref: "#/responses/NotFound"
+    
+    put: 
+      tags:
+        - Product
+      summary: Update a product by EB Id
+      description: Updates the details of a product by its Ebucation Brands Id
+      operationId: updateProductById
+      parameters:
+        - $ref: "#/parameters/AuthorizationHeaderParam"
+        - $ref: "#/parameters/ContentTypeHeaderParam"
+        - in: path
+          name: ebProductId
+          description: "The Education brands product id"
+          required: true
+          type: string
+        - in: body
+          name: Product
+          description: "The updated product object"
+          required: true
           schema:
             $ref: "#/definitions/Product"
-        404:
-          description: "The specified resource was not found"
-          schema:
-            $ref: "#/definitions/ErrorResponse"
-    put:
-      tags:
-      - "Product APIs"
-      summary: "Update a product by EB Id"
-      description: "Updates the details of a product by its Ebucation Brands Id"
-      operationId: "updateProductById"
-      parameters:
-      - name: "ebProductId"
-        in: "path"
-        description: "The Education brands product id"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "Product"
-        description: "The updated product object"
-        required: false
-        schema:
-          $ref: "#/definitions/Product"
+        - $ref: "#/parameters/ContentTypeHeaderParam"    
+          
       responses:
         200:
           description: "OK. The product details as registered with EBIS"
-          schema:
-            $ref: "#/definitions/Product"
+          schema: 
+            $ref: "#/definitions/Product"  
         404:
-          description: "The specified resource was not found"
-          schema:
-            $ref: "#/definitions/ErrorResponse"
-    delete:
+          $ref: "#/responses/NotFound"
+    
+    delete: 
       tags:
-      - "Product APIs"
-      summary: "De-register the product"
-      description: "De-register the product by its Ebucation Brands Id"
-      operationId: "deRegisereProductById"
+        - Product
+      summary: De-register the product
+      description: De-register the product by its Ebucation Brands Id
+      operationId: deRegisereProductById
       parameters:
-      - name: "ebProductId"
-        in: "path"
-        description: "The Education brands product id"
-        required: true
-        type: "string"
+        - in: path
+          name: ebProductId
+          description: "The Education brands product id"
+          required: true
+          type: string
+          
       responses:
         200:
           description: "OK. The product de-registered with EBIS"
         404:
-          description: "The specified resource was not found"
-          schema:
-            $ref: "#/definitions/ErrorResponse"
+          $ref: "#/responses/NotFound"
+
+# Institution API
+
   /institutions:
     post:
       tags:
-      - "Institution APIs"
-      summary: "Register a new Institution for Integration"
-      description: "Registeres a new institution for Integration. THis must be done\
-        \ before using the services of EBIS."
-      operationId: "registerInstitution"
+      - Institution
+      summary: Register a new Institution for Integration
+      description: Registeres a new institution for Integration. THis must be done before using the services of EBIS.
+      operationId: registerInstitution
       parameters:
-      - in: "body"
-        name: "RegisterInstitutionRequest"
-        required: false
-        schema:
-          $ref: "#/definitions/RegisterInstitutionRequest"
-      responses:
+        - in: body
+          name: RegisterInstitutionRequest
+          schema:
+            $ref: "#/definitions/RegisterInstitutionRequest"
+      responses: 
         200:
-          description: "Institution registered successfully with EBIS"
+          description: Institution registered successfully with EBIS
           schema:
             $ref: "#/definitions/RegisterInstitutionResponse"
         409:
-          description: "Conflict. The institution has already been registered for\
-            \ integration"
+          description: "Conflict. The institution has already been registered for integration"
           schema:
             $ref: "#/definitions/ErrorResponse"
+            
   /institutions/{ebInstitutionId}/products:
     get:
       tags:
-      - "Institution APIs"
-      summary: "Get Services"
-      description: "Gets a list of all services offered by different products for\
-        \ the specified institution"
-      operationId: "GetServicesRequest"
+        - Institution
+      summary: Get Services
+      description: Gets a list of all services offered by different products for the specified institution
+      operationId: GetServicesRequest
       parameters:
-      - name: "ebInstitutionId"
-        in: "path"
-        description: "The Education brands institution id"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "Successfully returned the services used by the institution"
+        - in: path
+          name: ebInstitutionId
+          description: "The Education brands institution id"
+          required: true
+          type: string
+      responses: 
+         200:
+          description: Successfully returned the services used by the institution
           schema:
             $ref: "#/definitions/GetServiceResponse"
+  
   /institutions/{ebInstitutionId}/products/{ebProductId}:
     delete:
       tags:
-      - "Institution APIs"
-      summary: "Disable Integration for product"
-      description: "API for an institution to disable integration for its product"
-      operationId: "disableProductInstitutionIntegration"
+        - Institution
+      summary: Disable Integration for product
+      description: API for an institution to disable integration for its product
+      operationId: disableProductInstitutionIntegration
       parameters:
-      - name: "ebInstitutionId"
-        in: "path"
-        description: "The Education brands institution id"
-        required: true
-        type: "string"
-      - name: "ebProductId"
-        in: "path"
-        description: "The Education brands product id"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "Successfully disabled integration for the product"
+        - in: path
+          name: ebInstitutionId
+          description: "The Education brands institution id"
+          required: true
+          type: string
+        - in: path
+          name: ebProductId
+          description: "The Education brands product id"
+          required: true
+          type: string
+      responses: 
+         200:
+          description: Successfully disabled integration for the product            
+
+# Query & Notification API
+
   /query:
     post:
       tags:
-      - "Query API"
-      summary: "Query for data"
-      description: "The Query API will allow a user to query data from services(like\
-        \ admissions, enrollment etc) offered by EB products.  It also provides means\
-        \ to retrieve information of various types including member (student, parent,\
-        \ staff), household, admission, enrollment etc"
-      operationId: "GetQueryRequest"
+      - Data Exchange
+      summary: Query for data
+      description: The Query API will allow a user to query data from services(like admissions, enrollment etc) offered by EB products.  It also provides means to retrieve information of various types including member (student, parent, staff), household, admission, enrollment etc
+      operationId: GetQueryRequest
       parameters:
-      - in: "body"
-        name: "GetQueryRequest"
-        required: false
-        schema:
-          $ref: "#/definitions/GetQueryRequest"
-      responses:
-        200:
-          description: "Successfully returned the data."
+        - in: body
+          name: GetQueryRequest
+          schema:
+            $ref: "#/definitions/GetQueryRequest"
+      responses: 
+         200:
+          description: Successfully returned the data.
           schema:
             $ref: "#/definitions/GetQueryResponse"
+  
+  /notifications/publish:
+    post:
+      tags: 
+      - Data Exchange
+      summary: Publish an event.
+      description: Publish a notification against a event. All those who have subscribed to the event will receive notification. The payload that is provided in the Publish will be passed on to each of the subscribers.
+      operationId: PublishNotificationEvent
+      parameters: 
+        - in: body
+          name: PublishEvent
+          schema:
+            $ref: "#/definitions/PublishEventRequest"
+      responses:
+        200:
+          description: EBIS published Event token
+          schema:
+            items:
+              $ref: "#/definitions/PublishEventResponse"   
+  
+  /notifications/subscribe:
+    post:
+      tags: 
+      - Data Exchange
+      summary: Subscribe to a published event
+      description: Inorder to get the notifications for an event, the product has to subscribe for that event.
+      operationId: SubscribeNotificationEvent
+      parameters: 
+        - in: body
+          name: SubscribeEventRequest
+          schema:
+            $ref: "#/definitions/SubscribeEventRequest"
+      responses:
+        200:
+          description: Eb Event Subscription Id
+          schema:
+            $ref: "#/definitions/SubscribeEventResponse"               
+  
+  # Product Endpoints
+
   /productBaseUrl/acknowledgeNotification:
     post:
-      tags:
-      - "Product Endpoints"
-      summary: "Acknowledge event notification"
-      description: "Acnowledge API facilitate the product to keep track of the request\
-        \ and its status whether it has delivered to the end product successfully\
-        \ or not"
-      operationId: "AckNotificationRequest"
-      parameters:
-      - in: "body"
-        name: "AckNotification"
-        required: false
-        schema:
-          $ref: "#/definitions/AckNotification"
+      tags: 
+      - Product Endpoints
+      summary: Product endpoint to receive notification acknowledgement from EBIS
+      description: Acnowledge API facilitate the product to keep track of the request and its status whether it has delivered to the end product successfully or not
+      operationId: AckNotificationRequest
+      parameters: 
+        - in: body
+          name: AckNotification
+          schema:
+            $ref: "#/definitions/AckNotification"
       responses:
         200:
-          description: "Acknowledgment status from event subscriber"
+          description: Acknowledgment status from event subscriber
+  
   /productBaseUrl/notification:
     post:
-      tags:
-      - "Product Endpoints"
-      summary: "Get the notifications for an event"
-      description: "Notification APIs are useful when you want to update data in your\
-        \ system after changes to data in another system. This is often the case when\
-        \ two or more products share similar entities (like Student, Parent, etc).\
-        \ Using these APIs enable you to exchange data asynchronously. Any change\
-        \ in data in one product is reflected in other interested products in real-time."
-      operationId: "notifyRequest"
-      parameters:
-      - in: "body"
-        name: "NotifyRequest"
-        required: false
-        schema:
-          $ref: "#/definitions/SubscribeEventRequest"
+      tags: 
+      - Product Endpoints
+      summary: Product endpoint to receive the notifications for an event from EBIS
+      description: The notification endpoint will be invoked by EBIS to facilitate Notification API. THis is the endpoint that EBIS will call when it has to notify a product about any event that has been published.
+      operationId: productNotification
+      parameters: 
+        - in: body
+          name: ProductNotificationRequest
+          schema:
+            $ref: "#/definitions/ProductNotificationRequest"
       responses:
         200:
-          description: "Eb Event Subscription Id"
+          description: The product must return 200 OK to convey success to EBIS. A response of 200 OK will tell EBIS that the nootification was successful. Otherwise, it may attempt to retry notifications.
+  
   /productBaseUrl/query:
     post:
       tags:
-      - "Product Endpoints"
-      summary: "Get Data based on query"
-      description: "Query APIs are useful when a product wants to proactively get\
-        \ some information from another product. This is often the case when a system\
-        \ wants to request current information in another system. Using these APIs\
-        \ enables you to exchange data synchronously."
-      operationId: "GetDataQueryRequest"
+      - Product Endpoints
+      summary: Product endpoint to receive Query requests from EBIS
+      description: Query APIs are useful when a product wants to proactively get some information from another product. This is often the case when a system wants to request current information in another system. Using these APIs enables you to exchange data synchronously. 
+      operationId: GetDataQueryRequest
       parameters:
-      - in: "body"
-        name: "GetQueryRequest"
-        required: false
-        schema:
-          $ref: "#/definitions/GetQueryRequest"
-      responses:
-        200:
-          description: "Successfully returned the data."
+        - in: body
+          name: GetQueryRequest
+          schema:
+            $ref: "#/definitions/GetQueryRequest"
+      responses: 
+         200:
+          description: Successfully returned the data.
           schema:
             $ref: "#/definitions/GetQueryResponse"
+  
   /productBaseUrl/errorNotification:
     post:
-      tags:
-      - "Product Endpoints"
-      summary: "Error notifications"
-      description: "The Error API is can be used by the product to keep track of the\
-        \ errors and abnormalities occured while processing the request."
-      operationId: "ErrNotificationRequest"
-      parameters:
-      - in: "body"
-        name: "ErrNotification"
-        required: false
-        schema:
-          $ref: "#/definitions/ErrNotification"
+      tags: 
+      - Product Endpoints
+      summary: Product endpoint to receive Error notifications from EBIS
+      description: The Error API is can be used by the product to keep track of the errors and abnormalities occured while processing the request.
+      operationId: ErrorNotificationRequest
+      parameters: 
+        - in: body
+          name: ErrorNotification
+          schema:
+            $ref: "#/definitions/ErrorNotificationRequest"
       responses:
         200:
-          description: "Error Notifications from EBIS"
+          description: Error Notifications from EBIS             
+    
+# Descriptions of object schemas
+
 definitions:
   ErrorResponse:
-    type: "object"
-    required:
-    - "code"
-    - "message"
-    - "utcTimestamp"
+    type: object
     properties:
       code:
-        type: "string"
+        type: string
         example: "ServiceNotProvided"
       message:
-        type: "string"
+        type: string
         example: "This requested service is not provided"
       utcTimestamp:
-        type: "string"
+        type: string
         example: "2012-04-21T18:25:43-05:00"
+    required:
+      - code
+      - message
+      - utcTimestamp
+  
   SubscribeEventRequest:
-    type: "object"
+    type: object
     properties:
       ebProductID:
-        type: "string"
+        type: string
+        description: EBID of the product the requesting product
         example: "xxui-23jy-34dte"
-        description: "EBID of the product the requesting product"
       productName:
-        type: "string"
+        type: string
+        description: Name of the product
         example: "TADS"
-        description: "Name of the product"
       ebInstitutionId:
-        type: "string"
+        type: string
+        description: EB Institution Id
         example: "uihw-23dcrc-3wdcdc"
-        description: "EB Institution Id"
       institutionName:
-        type: "string"
+        type: string
+        description: Institution Name
         example: "Donahue"
-        description: "Institution Name"
       eventName:
-        type: "string"
+        type: string
+        description: Name of the published event
         example: "StudentAdmitted"
-        description: "Name of the published event"
       protocol:
-        type: "string"
+        type: string
+        description: Http protocol used
         example: "http"
-        description: "Http protocol used"
       filterPolicy:
-        $ref: "#/definitions/FilterPolicy"
-    example:
-      protocol: "http"
-      ebProductID: "xxui-23jy-34dte"
-      institutionName: "Donahue"
-      ebInstitutionId: "uihw-23dcrc-3wdcdc"
-      filterPolicy:
-        values:
-        - ""
-        - ""
-        key: "StandardDataType"
-      eventName: "StudentAdmitted"
-      productName: "TADS"
+          $ref: "#/definitions/FilterPolicy"
+            
   SubscribeEventResponse:
-    type: "object"
+    type: object
     properties:
       EbEventSubscriptionId:
-        type: "string"
-        example: "xxui-23jy-34dte"
-        description: "Eb Event Subscription Id"
-    example:
-      EbEventSubscriptionId: "xxui-23jy-34dte"
+        type: string
+        description: Eb Event Subscription Id
+        example: "xxui-23jy-34dte"    
+  
   PublishEventRequest:
-    type: "object"
+    type: object
     properties:
       ebProductID:
-        type: "string"
+        type: string
+        description: EBID of the product
         example: "xxui-23jy-34dte"
-        description: "EBID of the product"
       productName:
-        type: "string"
+        type: string
+        description: Name of the product
         example: "TADS"
-        description: "Name of the product"
       ebInstitutionId:
-        type: "string"
+        type: string
+        description: EB Institution Id
         example: "uihw-23dcrc-3wdcdc"
-        description: "EB Institution Id"
       institutionName:
-        type: "string"
+        type: string
+        description: Institution Name
         example: "Donahue"
-        description: "Institution Name"
       eventName:
-        type: "string"
+        type: string
+        description: Name of the published event
         example: "Student_Admitted"
-        description: "Name of the published event"
       acknowledgementRequired:
-        type: "boolean"
+        type: boolean
+        description: Is acknowledgement required
         example: true
-        description: "Is acknowledgement required"
       Payload:
-        type: "string"
+        type: string
+        description: Message to be publish
         example: "{'Student':{'EbUserId':'777333','Admission':{'DateOfAdmission':'2018-01-26',....'}}}"
-        description: "Message to be publish"
-    example:
-      ebProductID: "xxui-23jy-34dte"
-      acknowledgementRequired: true
-      institutionName: "Donahue"
-      ebInstitutionId: "uihw-23dcrc-3wdcdc"
-      eventName: "Student_Admitted"
-      Payload: "{'Student':{'EbUserId':'777333','Admission':{'DateOfAdmission':'2018-01-26',....'}}}"
-      productName: "TADS"
+                 
   PublishEventResponse:
-    type: "object"
+    type: object
     properties:
       ebPublishedEventId:
-        type: "string"
-        example: "yyui-23jy-34dte"
-        description: "EBID of the event published"
+        type: string
+        description: EBID of the event published
+        example: "yyui-23jy-34dte"  
+  
   AckNotification:
-    type: "object"
+    type: object
     properties:
       productID:
-        type: "string"
+        type: string
+        description: EBID of the product
         example: "xxui-23jy-34dte"
-        description: "EBID of the product"
       productName:
-        type: "string"
+        type: string
+        description: Name of the product
         example: "TADS"
-        description: "Name of the product"
       AcknowledgeTimestamp:
-        type: "string"
+        type: string
+        description: Acknowledgment time stamp in UTC
         example: "2018-02-13T13:45:30"
-        description: "Acknowledgment time stamp in UTC"
       RequestTimestamp:
-        type: "string"
+        type: string
+        description: Request processed time stamp in UTC
         example: "2018-02-14T13:45:30"
-        description: "Request processed time stamp in UTC"
       EventToken:
-        type: "string"
+        type: string
+        description: Event token
         example: "kyw3-5cyh-332c"
-        description: "Event token"
       StatusCode:
-        type: "string"
+        type: string
+        description: Event token
         example: "200"
-        description: "Event token"
       StatusMessage:
-        type: "string"
-        example: "Enrollment successfully processed"
-        description: "successfully processed"
-    example:
-      RequestTimestamp: "2018-02-14T13:45:30"
-      productID: "xxui-23jy-34dte"
-      AcknowledgeTimestamp: "2018-02-13T13:45:30"
-      StatusCode: "200"
-      productName: "TADS"
-      EventToken: "kyw3-5cyh-332c"
-      StatusMessage: "Enrollment successfully processed"
+        type: string
+        description: successfully processed 
+        example: "Enrollment successfully processed"    
+  
   GetQueryResponse:
-    type: "array"
+    type: array
     items:
       $ref: "#/definitions/QueryPayload"
+      
   QueryPayload:
-    type: "object"
-    properties:
+   type: object
+   properties:
       EBIntegrationUserId:
-        type: "string"
+        type: string
+        description: Education Brands User Id
         example: "Ravenna"
-        description: "Education Brands User Id"
       FirstName:
-        type: "string"
+        type: string
+        description: User First Name
         example: "John"
-        description: "User First Name"
       LastName:
-        type: "string"
+        type: string
+        description: User Last Name
         example: "Paul"
-        description: "User Last Name"
       Gender:
-        type: "string"
+        type: string
         example: "M"
-        description: "User Gender"
+        description: User Gender
       Admission:
-        type: "array"
+        type: array
         items:
           $ref: "#/definitions/QueryInformation"
-  ErrNotification:
-    type: "object"
+  
+  ErrorNotificationRequest:
+    type: object
     properties:
       productID:
-        type: "string"
+        type: string
+        description: EBID of the product
         example: "xxui-23jy-34dte"
-        description: "EBID of the product"
       productName:
-        type: "string"
+        type: string
+        description: Name of the product
         example: "TADS"
-        description: "Name of the product"
       RequestTimestamp:
-        type: "string"
+        type: string
+        description: Request processed time stamp in UTC
         example: "2018-02-14T13:45:30"
-        description: "Request processed time stamp in UTC"
       RequestId:
-        type: "string"
+        type: string
+        description: unique Id for a request
         example: "kyw3-5cyh-332c"
-        description: "unique Id for a request"
       StatusCode:
-        type: "string"
+        type: string
+        description: The status code
         example: "200"
-        description: "The status code"
       StatusMessage:
-        type: "array"
-        description: "Array of error messages"
+        type: array
+        description: Array of error messages
         items:
-          type: "string"
-          example: ""
-    example:
-      RequestTimestamp: "2018-02-14T13:45:30"
-      productID: "xxui-23jy-34dte"
-      RequestId: "kyw3-5cyh-332c"
-      StatusCode: "200"
-      productName: "TADS"
-      StatusMessage:
-      - ""
-      - ""
+          type: string
+          example:
+            - Internal Server Error
+            - Object reference not set.
+  
   QueryInformation:
-    type: "object"
+    type: object
     properties:
       ApplicationId:
-        type: "string"
+        type: string
+        description: Admission Application Id
         example: "1000021"
-        description: "Admission Application Id"
       AdmissionStatus:
-        type: "string"
+        type: string
+        description: Status of the admission
         example: "Applied"
-        description: "Status of the admission"
+  
   GetQueryRequest:
-    type: "object"
+    type: object
     properties:
       productName:
-        type: "string"
+        type: string
+        description: Name of the Product
         example: "Ravenna"
-        description: "Name of the Product"
       ebProductId:
-        type: "string"
+        type: string
+        description: Education brands Id for the product
         example: "03"
-        description: "Education brands Id for the product"
       institutionName:
-        type: "string"
+        type: string
+        description: Name of the institution
         example: "SchoolSpeak Training Academy"
-        description: "Name of the institution"
       ebInstitutionId:
-        type: "string"
+        type: string
+        description: Name of the institution
         example: "SchoolSpeak Training Academy"
-        description: "Name of the institution"
       RecordType:
-        type: "string"
+        type: string
         example: "Student"
-        description: "The name of the Standard Data Set type to be queried"
+        description: The name of the Standard Data Set type to be queried
+      
       sections:
-        type: "array"
-        description: "The sections of the standard data set to populate in the result"
+        type: array
+        description: The sections of the standard data set to populate in the result 
         items:
-          type: "string"
-          example: ""
+          type: string
+          example:
+            - Student.All
+            - Student.Basic_Info
+            - Student.Admission
       filters:
-        type: "array"
-        description: "Array of conditions to filter the result data"
+        type: array
+        description: Array of conditions to filter the result data
         items:
           $ref: "#/definitions/Filters"
-    example:
-      RecordType: "Student"
-      ebProductId: "03"
-      institutionName: "SchoolSpeak Training Academy"
-      ebInstitutionId: "SchoolSpeak Training Academy"
-      filters:
-      - Value: "Applied"
-        Key: "Admission-Status"
-      - Value: "Applied"
-        Key: "Admission-Status"
-      productName: "Ravenna"
-      sections:
-      - ""
-      - ""
+          
   Filters:
-    type: "object"
+    type: object
     properties:
       Key:
-        type: "string"
+        type: string
+        description: Admission Status
         example: "Admission-Status"
-        description: "Admission Status"
       Value:
-        type: "string"
+        type: string
+        description: Admission Status
         example: "Applied"
-        description: "Admission Status"
-    example:
-      Value: "Applied"
-      Key: "Admission-Status"
+        
   GetServiceResponse:
-    type: "object"
+    type: object
     properties:
       EBInstitutionId:
-        type: "string"
+        type: string
+        description: Institution Id
         example: "10002"
-        description: "Institution Id"
       Services:
-        type: "array"
-        description: "Array of services supported by the integration service"
+        type: array
+        description: Array of services supported by the integration service
         items:
           $ref: "#/definitions/ProductServices"
-    example:
-      EBInstitutionId: "10002"
-      Services:
-      - servicesOffered:
-        - ""
-        - ""
-        ProductName: "TADS"
-        EBProductId: "7756c3c-22c2-41d9-b1d9-27444586011"
-      - servicesOffered:
-        - ""
-        - ""
-        ProductName: "TADS"
-        EBProductId: "7756c3c-22c2-41d9-b1d9-27444586011"
+          
   Product:
-    type: "object"
+    type: object
     properties:
       productName:
-        type: "string"
+        type: string
+        description: Name of the product
         example: "Senior Systems"
-        description: "Name of the product"
       servicesOffered:
-        type: "array"
-        description: "Array of services offered by the product, collection of Education\
-          \ Brands service ids"
+        type: array
+        description: Array of services offered by the product, collection of Education Brands service ids
         items:
-          type: "string"
-          example: ""
-    example:
-      servicesOffered:
-      - ""
-      - ""
-      productName: "Senior Systems"
+          type: string
+          example:
+            - A
+            - E
+            - SIS
+            - TM
+            - FA
+            - ADV
+            
   RegisterInstitutionResponse:
-    type: "object"
+    type: object
     properties:
       EBInstitutionId:
-        type: "string"
+        type: string
+        description: Education Brands InstitutionId
         example: "100001"
-        description: "Education Brands InstitutionId"
       Services:
-        type: "array"
+        type: array
         items:
           $ref: "#/definitions/ProductServices"
-    example:
-      EBInstitutionId: "100001"
-      Services:
-      - servicesOffered:
-        - ""
-        - ""
-        ProductName: "TADS"
-        EBProductId: "7756c3c-22c2-41d9-b1d9-27444586011"
-      - servicesOffered:
-        - ""
-        - ""
-        ProductName: "TADS"
-        EBProductId: "7756c3c-22c2-41d9-b1d9-27444586011"
+          
   RegisterInstitutionRequest:
-    type: "object"
+    type: object
     properties:
       productName:
-        type: "string"
+        type: string
+        description: Name of the Product
         example: "Ravenna"
-        description: "Name of the Product"
       productId:
-        type: "string"
+        type: string
+        description: Education brands Id for the product
         example: "03"
-        description: "Education brands Id for the product"
       institutionName:
-        type: "string"
+        type: string
+        description: Name of the institution
         example: "SchoolSpeak Training Academy"
-        description: "Name of the institution"
       InstitutionId:
-        type: "string"
+        type: string
         example: "2001"
-        description: "The local product-specific id of the institution"
+        description: The local product-specific id of the institution
       Address:
-        type: "array"
+        type: array
         items:
           $ref: "#/definitions/Address"
       phone:
-        type: "string"
-        example: "877 773 2513"
+        type: string
         description: "the phone number of the insttution"
+        example: "877 773 2513"
       webAddress:
-        type: "string"
+        type: string
+        description: The website address of the institution
         example: "http://www.SchoolSpeak.com"
-        description: "The website address of the institution"
       serviceOffered:
-        type: "array"
-        description: "A list of services offered  by the product"
+        type: array
+        description: A list of services offered  by the product
         items:
-          type: "string"
-          example: ""
-    example:
-      productId: "03"
-      Address:
-      - zip: "94085"
-        country: "USA"
-        city: "Sunnywale"
-        addressLine1: "1250 Oakmead Pkwy"
-        addressLine2: "Suite 210"
-        state: "CA"
-      - zip: "94085"
-        country: "USA"
-        city: "Sunnywale"
-        addressLine1: "1250 Oakmead Pkwy"
-        addressLine2: "Suite 210"
-        state: "CA"
-      InstitutionId: "2001"
-      phone: "877 773 2513"
-      webAddress: "http://www.SchoolSpeak.com"
-      institutionName: "SchoolSpeak Training Academy"
-      serviceOffered:
-      - ""
-      - ""
-      productName: "Ravenna"
+          type: string
+          example:
+            - Admission
+          
   Address:
-    type: "object"
+    type: object
     properties:
       addressLine1:
-        type: "string"
-        example: "1250 Oakmead Pkwy"
+        type: string
         description: "the address line 1 of the institution"
+        example: "1250 Oakmead Pkwy"
       addressLine2:
-        type: "string"
-        example: "Suite 210"
+        type: string
         description: "the address line 2 of the institution"
+        example: "Suite 210"
       city:
-        type: "string"
-        example: "Sunnywale"
+        type: string
         description: "the city of the institution"
+        example: "Sunnywale"
       state:
-        type: "string"
-        example: "CA"
+        type: string
         description: "the state of the institution"
+        example: "CA"
       zip:
-        type: "string"
-        example: "94085"
+        type: string
         description: "the zip of the institution"
+        example: "94085"
       country:
-        type: "string"
-        example: "USA"
+        type: string
         description: "the country of the institution"
-    example:
-      zip: "94085"
-      country: "USA"
-      city: "Sunnywale"
-      addressLine1: "1250 Oakmead Pkwy"
-      addressLine2: "Suite 210"
-      state: "CA"
+        example: "USA" 
+        
   ProductServices:
-    type: "object"
+    type: object
     properties:
       EBProductId:
-        type: "string"
+        type: string
+        description: The Education Brands product Id
         example: "7756c3c-22c2-41d9-b1d9-27444586011"
-        description: "The Education Brands product Id"
       ProductName:
-        type: "string"
+        type: string
+        description: The product Name
         example: "TADS"
-        description: "The product Name"
+        
       servicesOffered:
-        type: "array"
-        description: "A list of services of the product"
+        type: array
+        description: A list of services of the product
         items:
-          type: "string"
-          example: ""
-    example:
-      servicesOffered:
-      - ""
-      - ""
-      ProductName: "TADS"
-      EBProductId: "7756c3c-22c2-41d9-b1d9-27444586011"
+          type: string
+          example:
+            - Enrollment
+            - Tuition Management
+            
   FilterPolicy:
-    type: "object"
+    type: object
+    description: A filter policy to be applied
     properties:
       key:
-        type: "string"
-        example: "StandardDataType"
-        description: "A key for this policy"
+        type: string
+        description: A key for this policy
+        example: StandardDataType
       values:
-        type: "array"
-        description: "A list of values to match"
+        type: array
+        description: A list of values to match
         items:
-          type: "string"
-          example: ""
-    description: "A filter policy to be applied"
-    example:
-      values:
-      - ""
-      - ""
-      key: "StandardDataType"
-  inline_response_200:
+          type: string
+          example: 
+            - "Student.Basic_Info"
+            - "Student.Admission"
+  
+  ProductNotificationRequest:
+    type: object
+    description: The otification request that is delivered to the product endpoint when a notification is published by another product
     properties:
-      ebProductId:
-        type: "string"
-        example: "3456dc3c-22c2-41c9-b1d9-8455f4660111"
-    example:
-      ebProductId: "3456dc3c-22c2-41c9-b1d9-8455f4660111"
+      publishingProductName:
+        type: string
+        description: The name of the product that published the notification
+        example: Ravenna
+      institutionName:
+        type: string
+        description: The name of the institution
+        example: Summerwood School
+      ebInstitutionId:
+        type: string
+        description: The Education Brands institution id
+        example: 51001435
+      eventName:
+        type: string
+        description: The name of the event against which the notification was published
+        example: ""
+      messageType:
+        type: string
+        description: The name of the standard data type of the Payload
+        example: ""
+      acknowledgementRequired:
+        type: boolean
+        description: A value indicating whether the notifier has requested for acknowledgement or not
+        example: true
+      payload:
+        type: string
+        description: The serialized string of the actual data (standard data type) - MUST be same as the standard data type specified in the messageType field
+# Global parameters
+parameters:
+  AuthorizationHeaderParam:
+    in: header
+    name: Authorization
+    type: string
+    required: true
+    description: "Authorization header for authentication. 
+    The syntax is <b>Authorization: &lt;type&gt; &lt;credentials&gt;</b>; 
+    <i>where type=<b>Basic</b> and credentials= base64 encoding of <b>&lt;username&gt;:&lt;secretKey&gt;</b></i>"
+    example: "Authorization: basic YWxhZGRpbjpvcGVuc2VzYW1l"
+  
+  ContentTypeHeaderParam:
+    in: header
+    name: "Content-Type"
+    type: string
+    required: true
+    description: "The Content type."
+    example: "application/json"
+
+# Descriptions of common responses          
 responses:
-  Conflict:
-    description: "Conflict. Another entity with the same name already exists"
-    schema:
-      $ref: "#/definitions/ErrorResponse"
   NotFound:
-    description: "The specified resource was not found"
+    description: The specified resource was not found
     schema:
       $ref: "#/definitions/ErrorResponse"
   Unauthorized:
-    description: "Unauthorized"
+    description: Unauthorized
     schema:
       $ref: "#/definitions/ErrorResponse"
+  Conflict:
+    description: Conflict. Another entity with the same name already exists
+    schema:
+      $ref: "#/definitions/ErrorResponse"
+  
