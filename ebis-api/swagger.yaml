@@ -117,7 +117,6 @@ paths:
           required: true
           schema:
             $ref: "#/definitions/Product"
-        - $ref: "#/parameters/ContentTypeHeaderParam"    
           
       responses:
         200:
@@ -249,6 +248,22 @@ paths:
           schema:
             items:
               $ref: "#/definitions/PublishEventResponse"   
+  
+  /notifications/acknowledge:
+    post:
+      tags: 
+      - Data Exchange
+      summary: Acknowledge an event notification.
+      description: Acknowledge a notification for an event. A product that has received a notification can send an acknowledgement to the original publisher with a status and message. The publisher will use the event token to identify the acknowledgement was against which publish.
+      operationId: AcknowledgeNotificationEvent
+      parameters: 
+        - in: body
+          name: NotificationAcknowledgeRequest
+          schema:
+            $ref: "#/definitions/NotificationAcknowledgeRequest"
+      responses:
+        200:
+          description: Notification has been acknowledged successfully
   
   /notifications/subscribe:
     post:
@@ -437,14 +452,6 @@ definitions:
   AckNotification:
     type: object
     properties:
-      productID:
-        type: string
-        description: EBID of the product
-        example: "xxui-23jy-34dte"
-      productName:
-        type: string
-        description: Name of the product
-        example: "TADS"
       AcknowledgeTimestamp:
         type: string
         description: Acknowledgment time stamp in UTC
@@ -760,10 +767,14 @@ definitions:
         type: string
         description: The name of the event against which the notification was published
         example: ""
+      eventToken:
+        type: string
+        description: The unique token for the event. Use this token to acknowledge the event.
+        example: "55242"
       messageType:
         type: string
         description: The name of the standard data type of the Payload
-        example: ""
+        example: "Student"
       acknowledgementRequired:
         type: boolean
         description: A value indicating whether the notifier has requested for acknowledgement or not
@@ -771,6 +782,30 @@ definitions:
       payload:
         type: string
         description: The serialized string of the actual data (standard data type) - MUST be same as the standard data type specified in the messageType field
+
+  NotificationAcknowledgeRequest:
+    type: object
+    properties:      
+      AcknowledgeTimestamp:
+        type: string
+        description: Acknowledgment time stamp in UTC
+        example: "2018-02-13T13:45:30"
+      RequestTimestamp:
+        type: string
+        description: Request processed time stamp in UTC
+        example: "2018-02-14T13:45:30"
+      EventToken:
+        type: string
+        description: Event token
+        example: "77455"
+      StatusCode:
+        type: string
+        description: Event token
+        example: "200"
+      StatusMessage:
+        type: string
+        description: successfully processed 
+        example: "Admissions successfully processed in TADS" 
 # Global parameters
 parameters:
   AuthorizationHeaderParam:
@@ -781,7 +816,6 @@ parameters:
     description: "Authorization header for authentication. 
     The syntax is <b>Authorization: &lt;type&gt; &lt;credentials&gt;</b>; 
     <i>where type=<b>Basic</b> and credentials= base64 encoding of <b>&lt;username&gt;:&lt;secretKey&gt;</b></i>"
-    example: "Authorization: basic YWxhZGRpbjpvcGVuc2VzYW1l"
   
   ContentTypeHeaderParam:
     in: header
@@ -789,7 +823,6 @@ parameters:
     type: string
     required: true
     description: "The Content type."
-    example: "application/json"
 
 # Descriptions of common responses          
 responses:
