@@ -246,7 +246,6 @@ paths:
         200:
           description: EBIS published Event token
           schema:
-            items:
               $ref: "#/definitions/PublishEventResponse"   
   
   /notifications/acknowledge:
@@ -255,7 +254,7 @@ paths:
       - Data Exchange
       summary: Acknowledge an event notification.
       description: Acknowledge a notification for an event. A product that has received a notification can send an acknowledgement to the original publisher with a status and message. The publisher will use the event token to identify the acknowledgement was against which publish.
-      operationId: AcknowledgeNotificationEvent
+      operationId: NotificationAcknowledgeEvent
       parameters: 
         - in: body
           name: NotificationAcknowledgeRequest
