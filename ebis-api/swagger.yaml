@@ -27,7 +27,7 @@ schemes:
  
 tags:
 - name: Product  
-  description: APIs fo registering products with EBIS
+  description: APIs for registering products with EBIS
 - name: Institution
   description: APIs for registering Institutions with EBIS
 - name: Data Exchange
@@ -69,11 +69,7 @@ paths:
         200:
           description: Product registered successfully with EBIS
           schema:
-            type: object
-            properties:
-              ebProductId:
-                type: string
-                example: "3456dc3c-22c2-41c9-b1d9-8455f4660111"
+            $ref: "#/definitions/RegisterProductResponse"
   
   /products/{ebProductId}:    
     get:
@@ -131,7 +127,7 @@ paths:
         - Product
       summary: De-register the product
       description: De-register the product by its Ebucation Brands Id
-      operationId: deRegisereProductById
+      operationId: deRegisterProductById
       parameters:
         - in: path
           name: ebProductId
@@ -175,7 +171,7 @@ paths:
         - Institution
       summary: Get Services
       description: Gets a list of all services offered by different products for the specified institution
-      operationId: GetServicesRequest
+      operationId: getServicesRequest
       parameters:
         - in: path
           name: ebInstitutionId
@@ -217,8 +213,8 @@ paths:
       tags:
       - Data Exchange
       summary: Query for data
-      description: The Query API will allow a user to query data from services(like admissions, enrollment etc) offered by EB products.  It also provides means to retrieve information of various types including member (student, parent, staff), household, admission, enrollment etc
-      operationId: GetQueryRequest
+      description: The Query API will allow a user to query data from services(like admissions, enrollment etc) offered by EB products. It also provides means to retrieve information of various types including member (student, parent, staff), household, admission, enrollment etc
+      operationId: getQueryRequest
       parameters:
         - in: body
           name: GetQueryRequest
@@ -236,10 +232,10 @@ paths:
       - Data Exchange
       summary: Publish an event.
       description: Publish a notification against a event. All those who have subscribed to the event will receive notification. The payload that is provided in the Publish will be passed on to each of the subscribers.
-      operationId: PublishNotificationEvent
+      operationId: publishEvent
       parameters: 
         - in: body
-          name: PublishEvent
+          name: PublishEventRequest
           schema:
             $ref: "#/definitions/PublishEventRequest"
       responses:
@@ -253,8 +249,8 @@ paths:
       tags: 
       - Data Exchange
       summary: Acknowledge an event notification.
-      description: Acknowledge a notification for an event. A product that has received a notification can send an acknowledgement to the original publisher with a status and message. The publisher will use the event token to identify the acknowledgement was against which publish.
-      operationId: NotificationAcknowledgeEvent
+      description: Acknowledge a notification for an event. A product that has received a notification can send an acknowledgement to the EBIS and EBis willcacknowledge  the original publisher with a status and message. The publisher will use the event token to identify the acknowledgement was against which publish.
+      operationId: notificationAcknowledge
       parameters: 
         - in: body
           name: NotificationAcknowledgeRequest
@@ -270,7 +266,7 @@ paths:
       - Data Exchange
       summary: Subscribe to a published event
       description: Inorder to get the notifications for an event, the product has to subscribe for that event.
-      operationId: SubscribeNotificationEvent
+      operationId: subscribeNotificationEvent
       parameters: 
         - in: body
           name: SubscribeEventRequest
@@ -290,7 +286,7 @@ paths:
       - Product Endpoints
       summary: Product endpoint to receive notification acknowledgement from EBIS
       description: Acnowledge API facilitate the product to keep track of the request and its status whether it has delivered to the end product successfully or not
-      operationId: AckNotificationRequest
+      operationId: ackNotificationRequest
       parameters: 
         - in: body
           name: AckNotification
@@ -322,7 +318,7 @@ paths:
       - Product Endpoints
       summary: Product endpoint to receive Query requests from EBIS
       description: Query APIs are useful when a product wants to proactively get some information from another product. This is often the case when a system wants to request current information in another system. Using these APIs enables you to exchange data synchronously. 
-      operationId: GetDataQueryRequest
+      operationId: getDataQueryRequest
       parameters:
         - in: body
           name: GetQueryRequest
@@ -340,7 +336,7 @@ paths:
       - Product Endpoints
       summary: Product endpoint to receive Error notifications from EBIS
       description: The Error API is can be used by the product to keep track of the errors and abnormalities occured while processing the request.
-      operationId: ErrorNotificationRequest
+      operationId: errorNotificationRequest
       parameters: 
         - in: body
           name: ErrorNotification
@@ -805,6 +801,16 @@ definitions:
         type: string
         description: successfully processed 
         example: "Admissions successfully processed in TADS" 
+        
+  RegisterProductResponse:
+    type: object
+    properties:
+      ebProductId:
+        type: string
+        description: The Education brands product id
+        example: "3456dc3c-22c2-41c9-b1d9-8455f4660111"
+        
+    
 # Global parameters
 parameters:
   AuthorizationHeaderParam:
@@ -837,4 +843,3 @@ responses:
     description: Conflict. Another entity with the same name already exists
     schema:
       $ref: "#/definitions/ErrorResponse"
-  
