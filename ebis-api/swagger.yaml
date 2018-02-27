@@ -24,7 +24,15 @@ basePath: /EducationBrands/EBIS/1.0.0
 schemes:
  - https
  - http
- 
+
+securityDefinitions:
+  basicAuth:
+    type: basic
+
+# To apply Basic auth to the whole API:
+security:
+  - basicAuth: []
+  
 tags:
 - name: Product  
   description: APIs for registering products with EBIS
@@ -39,9 +47,7 @@ paths:
 
 # Product APIs
 
-  /products:   
-    parameters:        
-      - $ref: "#/parameters/AuthorizationHeaderParam"  
+  /products:
     get:
       tags: 
       - Product
@@ -79,7 +85,6 @@ paths:
       description: Gets the details of a product by its Ebucation Brands Id
       operationId: getProductById
       parameters:
-        - $ref: "#/parameters/AuthorizationHeaderParam"
         - in: path
           name: ebProductId
           description: "The Education brands product id"
@@ -100,7 +105,6 @@ paths:
       description: Updates the details of a product by its Ebucation Brands Id
       operationId: updateProductById
       parameters:
-        - $ref: "#/parameters/AuthorizationHeaderParam"
         - $ref: "#/parameters/ContentTypeHeaderParam"
         - in: path
           name: ebProductId
@@ -813,15 +817,6 @@ definitions:
     
 # Global parameters
 parameters:
-  AuthorizationHeaderParam:
-    in: header
-    name: Authorization
-    type: string
-    required: true
-    description: "Authorization header for authentication. 
-    The syntax is <b>Authorization: &lt;type&gt; &lt;credentials&gt;</b>; 
-    <i>where type=<b>Basic</b> and credentials= base64 encoding of <b>&lt;username&gt;:&lt;secretKey&gt;</b></i>"
-  
   ContentTypeHeaderParam:
     in: header
     name: "Content-Type"
@@ -836,7 +831,7 @@ responses:
     schema:
       $ref: "#/definitions/ErrorResponse"
   Unauthorized:
-    description: Unauthorized
+    description: Authentication information is missing or invalid
     schema:
       $ref: "#/definitions/ErrorResponse"
   Conflict:
