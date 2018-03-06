@@ -150,10 +150,6 @@ definitions:
         type: string
         description: Name of the published event
         example: "Student_Admitted"
-      acknowledgementRequired:
-        type: boolean
-        description: Is acknowledgement required
-        example: true
       Payload:
         type: string
         description: Message to be publish
