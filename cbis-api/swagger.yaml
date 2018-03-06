@@ -1,9 +1,9 @@
 swagger: '2.0'
 info:
   description: |
-    The integration framework is an attempt to define a standard and simple socket each brand can plug in to interact with other EB products. It defines what each product needs to do to integrate with other products. It has a set of API to interact with other products and what each product should implement to receive communication from other products. This is an API specification detailing the APIs for Education Brands IntegrationService.
+    The integration framework is an attempt to define a standard and simple socket each brand can plug in to interact with other CB products. It defines what each product needs to do to integrate with other products. It has a set of API to interact with other products and what each product should implement to receive communication from other products. This is an API specification detailing the APIs for Education Brands IntegrationService.
 
-    Most of these APIs will be implemented in EBIS.  The APIs in the 'Product Endpoints' section has to be implemented by each of the Products.
+    Most of these APIs will be implemented in CBIS.  The APIs in the 'Product Endpoints' section has to be implemented by each of the Products.
 
     <b>NOTE - <i>This specification is still in early development stage and is subject to change without notice.</i></b>
   version: 1.0.0
@@ -35,13 +35,13 @@ security:
   
 tags:
 - name: Product  
-  description: APIs for registering products with EBIS
+  description: APIs for registering products with CBIS
 - name: Institution
-  description: APIs for registering Institutions with EBIS
+  description: APIs for registering Institutions with CBIS
 - name: Data Exchange
-  description: APIs to Pull data (Query) and Push data (Notification) from/to other products via EBIS
+  description: APIs to Pull data (Query) and Push data (Notification) from/to other products via CBIS
 - name: Product Endpoints
-  description: Endpoints that must be implemented by the product in-order to communicate with EBIS
+  description: Endpoints that must be implemented by the product in-order to communicate with CBIS
 
 paths:
 
@@ -51,11 +51,11 @@ paths:
     get:
       tags: 
       - Product
-      summary: Get list of EB products
+      summary: Get list of CB products
       operationId: getProducts      
       responses:
         200:
-          description: List of products registered with EBIS
+          description: List of products registered with CBIS
           schema:
             type: array
             items:
@@ -73,7 +73,7 @@ paths:
             $ref: "#/definitions/Product"
       responses: 
         200:
-          description: Product registered successfully with EBIS
+          description: Product registered successfully with CBIS
           schema:
             $ref: "#/definitions/RegisterProductResponse"
   
@@ -81,7 +81,7 @@ paths:
     get:
       tags:
       - Product
-      summary: Get a product by EB Id
+      summary: Get a product by CB Id
       description: Gets the details of a product by its Ebucation Brands Id
       operationId: getProductById
       parameters:
@@ -92,7 +92,7 @@ paths:
           type: string
       responses:
         200:
-          description: "OK. The product details as registered with EBIS"
+          description: "OK. The product details as registered with CBIS"
           schema: 
             $ref: "#/definitions/Product"  
         404:
@@ -101,7 +101,7 @@ paths:
     put: 
       tags:
         - Product
-      summary: Update a product by EB Id
+      summary: Update a product by CB Id
       description: Updates the details of a product by its Ebucation Brands Id
       operationId: updateProductById
       parameters:
@@ -120,7 +120,7 @@ paths:
           
       responses:
         200:
-          description: "OK. The product details as registered with EBIS"
+          description: "OK. The product details as registered with CBIS"
           schema: 
             $ref: "#/definitions/Product"  
         404:
@@ -141,7 +141,7 @@ paths:
           
       responses:
         200:
-          description: "OK. The product de-registered with EBIS"
+          description: "OK. The product de-registered with CBIS"
         404:
           $ref: "#/responses/NotFound"
 
@@ -152,7 +152,7 @@ paths:
       tags:
       - Institution
       summary: Register a new Institution for Integration
-      description: Registeres a new institution for Integration. THis must be done before using the services of EBIS.
+      description: Registeres a new institution for Integration. THis must be done before using the services of CBIS.
       operationId: registerInstitution
       parameters:
         - in: body
@@ -161,7 +161,7 @@ paths:
             $ref: "#/definitions/RegisterInstitutionRequest"
       responses: 
         200:
-          description: Institution registered successfully with EBIS
+          description: Institution registered successfully with CBIS
           schema:
             $ref: "#/definitions/RegisterInstitutionResponse"
         409:
@@ -217,7 +217,7 @@ paths:
       tags:
       - Data Exchange
       summary: Query for data
-      description: The Query API will allow a user to query data from services(like admissions, enrollment etc) offered by EB products. It also provides means to retrieve information of various types including member (student, parent, staff), household, admission, enrollment etc
+      description: The Query API will allow a user to query data from services(like admissions, enrollment etc) offered by CB products. It also provides means to retrieve information of various types including member (student, parent, staff), household, admission, enrollment etc
       operationId: getQueryRequest
       parameters:
         - in: body
@@ -244,7 +244,7 @@ paths:
             $ref: "#/definitions/PublishEventRequest"
       responses:
         200:
-          description: EBIS published Event token
+          description: CBIS published Event token
           schema:
               $ref: "#/definitions/PublishEventResponse"   
   
@@ -253,7 +253,7 @@ paths:
       tags: 
       - Data Exchange
       summary: Acknowledge an event notification.
-      description: Acknowledge a notification for an event. A product that has received a notification can send an acknowledgement to the EBIS and EBis willcacknowledge  the original publisher with a status and message. The publisher will use the event token to identify the acknowledgement was against which publish.
+      description: Acknowledge a notification for an event. A product that has received a notification can send an acknowledgement to the CBIS and EBis willcacknowledge  the original publisher with a status and message. The publisher will use the event token to identify the acknowledgement was against which publish.
       operationId: notificationAcknowledge
       parameters: 
         - in: body
@@ -288,7 +288,7 @@ paths:
     post:
       tags: 
       - Product Endpoints
-      summary: Product endpoint to receive notification acknowledgement from EBIS
+      summary: Product endpoint to receive notification acknowledgement from CBIS
       description: Acnowledge API facilitate the product to keep track of the request and its status whether it has delivered to the end product successfully or not
       operationId: ackNotificationRequest
       parameters: 
@@ -304,8 +304,8 @@ paths:
     post:
       tags: 
       - Product Endpoints
-      summary: Product endpoint to receive the notifications for an event from EBIS
-      description: The notification endpoint will be invoked by EBIS to facilitate Notification API. THis is the endpoint that EBIS will call when it has to notify a product about any event that has been published.
+      summary: Product endpoint to receive the notifications for an event from CBIS
+      description: The notification endpoint will be invoked by CBIS to facilitate Notification API. THis is the endpoint that CBIS will call when it has to notify a product about any event that has been published.
       operationId: productNotification
       parameters: 
         - in: body
@@ -314,13 +314,13 @@ paths:
             $ref: "#/definitions/ProductNotificationRequest"
       responses:
         200:
-          description: The product must return 200 OK to convey success to EBIS. A response of 200 OK will tell EBIS that the nootification was successful. Otherwise, it may attempt to retry notifications.
+          description: The product must return 200 OK to convey success to CBIS. A response of 200 OK will tell CBIS that the nootification was successful. Otherwise, it may attempt to retry notifications.
   
   /productBaseUrl/query:
     post:
       tags:
       - Product Endpoints
-      summary: Product endpoint to receive Query requests from EBIS
+      summary: Product endpoint to receive Query requests from CBIS
       description: Query APIs are useful when a product wants to proactively get some information from another product. This is often the case when a system wants to request current information in another system. Using these APIs enables you to exchange data synchronously. 
       operationId: getDataQueryRequest
       parameters:
@@ -338,7 +338,7 @@ paths:
     post:
       tags: 
       - Product Endpoints
-      summary: Product endpoint to receive Error notifications from EBIS
+      summary: Product endpoint to receive Error notifications from CBIS
       description: The Error API is can be used by the product to keep track of the errors and abnormalities occured while processing the request.
       operationId: errorNotificationRequest
       parameters: 
@@ -348,7 +348,7 @@ paths:
             $ref: "#/definitions/ErrorNotificationRequest"
       responses:
         200:
-          description: Error Notifications from EBIS             
+          description: Error Notifications from CBIS             
     
 # Descriptions of object schemas
 
@@ -383,7 +383,7 @@ definitions:
         example: "TADS"
       ebInstitutionId:
         type: string
-        description: EB Institution Id
+        description: CB Institution Id
         example: "uihw-23dcrc-3wdcdc"
       institutionName:
         type: string
@@ -421,7 +421,7 @@ definitions:
         example: "TADS"
       ebInstitutionId:
         type: string
-        description: EB Institution Id
+        description: CB Institution Id
         example: "uihw-23dcrc-3wdcdc"
       institutionName:
         type: string
