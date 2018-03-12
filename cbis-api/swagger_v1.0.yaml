@@ -52,34 +52,17 @@ paths:
       operationId: publishEvent
       parameters: 
         - in: body
-          name: PublishEventRequest
+          name: publishedMessage
           schema:
-            $ref: "#/definitions/PublishEventRequest"
+            $ref: "#/definitions/PublishedMessage"
       responses:
         200:
-          description: CBIS published Event token
+          description: An object of MessageResult
           schema:
-              $ref: "#/definitions/MessageResult"   
-  
-  /notifications/acknowledge:
-    post:
-      tags: 
-      - Data Exchange
-      summary: Acknowledge an event notification.
-      description: Acknowledge a notification for an event. A product that has received a notification can send an acknowledgement to the CBIS and CBIS willcacknowledge  the original publisher with a status and message. The publisher will use the event token to identify the acknowledgement was against which publish.
-      operationId: notificationAcknowledge
-      parameters: 
-        - in: body
-          name: NotificationAcknowledgeRequest
-          schema:
-            $ref: "#/definitions/NotificationAcknowledgeRequest"
-      responses:
-        200:
-          description: Notification has been acknowledged successfully
+              $ref: "#/definitions/MessageResult"
   
   # Product Endpoints
-
-  /productBaseUrl/acknowledgeNotification:
+  /notification:
     post:
       tags: 
       - Product Endpoints
@@ -88,14 +71,16 @@ paths:
       operationId: ackNotificationRequest
       parameters: 
         - in: body
-          name: AckNotification
+          name: PublishedMessage
           schema:
-            $ref: "#/definitions/AckNotification"
+            $ref: "#/definitions/PublishedMessage"
       responses:
         200:
-          description: Acknowledgment status from event subscriber
+          description: An object of MessageResult
+          schema:
+              $ref: "#/definitions/MessageResult"
   
-  /productBaseUrl/notification:
+  /notificationResult:
     post:
       tags: 
       - Product Endpoints
@@ -104,194 +89,92 @@ paths:
       operationId: productNotification
       parameters: 
         - in: body
-          name: ProductNotificationRequest
+          name: MessageResult
           schema:
-            $ref: "#/definitions/ProductNotificationRequest"
+            $ref: "#/definitions/MessageResult"
       responses:
         200:
-          description: The product must return 200 OK to convey success to CBIS. A response of 200 OK will tell CBIS that the nootification was successful. Otherwise, it may attempt to retry notifications.
-  
-  /productBaseUrl/errorNotification:
-    post:
-      tags: 
-      - Product Endpoints
-      summary: Product endpoint to receive Error notifications from CBIS
-      description: The Error API is can be used by the product to keep track of the errors and abnormalities occured while processing the request.
-      operationId: errorNotificationRequest
-      parameters: 
-        - in: body
-          name: ErrorNotification
+          description: An object of MessageResult
           schema:
-            $ref: "#/definitions/ErrorNotificationRequest"
-      responses:
-        200:
-          description: Error Notifications from CBIS             
+              $ref: "#/definitions/MessageResult"       
     
 # Descriptions of object schemas
 
 definitions:
-
-  PublishEventRequest:
+  PublishedMessage:
     type: object
     properties:
       institutionId:
         type: string
-        description: Local institution Id
+        description: Product-specific institution Id
         example: "3745747"
       cbInstitutionId:
         type: string
-        description: CB Institution Id
-        example: "uihw-23dcrc-3wdcdc"
-      messageToken:
+        description: Global CB institution id – if this value is provided, we can avoid a lookup
+        example: "e34bdf5d-15f5-4ed1-91f3-dafee07ff14a"
+      eventName:
+        type: string
+        description: The name of the event that is to be published
+        example: "Ravenna.ApplicantAdmitted"
+      messageId:
         type: string
         description: unique id generated for each publish request. Used to acknowledge the product about success/failure of request.
-        example: "ew-rw-dfkjfjd"
-      eventName:
+        example: "424d0716-2ed9-4e7b-86f3-c58dab1ab348"
+      payloadType:
         type: string
-        description: Name of the published event
-        example: "Student_Admitted"
+        description: the standard model name of the payload (validations, etc will be done against this)
+        example: "Student"
       Payload:
-        type: string
-        description: Message to be publish
+        type: object
+        description: The actual payload
         example: "{'Student':{'cbUserId':'777333','admission':{'DateOfAdmission':'2018-01-26',....'}}}"
                  
-  AckNotification:
-    type: object
-    properties:
-      AcknowledgeTimestamp:
-        type: string
-        description: Acknowledgment time stamp in UTC
-        example: "2018-02-13T13:45:30"
-      RequestTimestamp:
-        type: string
-        description: Request processed time stamp in UTC
-        example: "2018-02-14T13:45:30"
-      EventToken:
-        type: string
-        description: Event token
-        example: "kyw3-5cyh-332c"
-      StatusCode:
-        type: string
-        description: Event token
-        example: "200"
-      StatusMessage:
-        type: string
-        description: successfully processed 
-        example: "Enrollment successfully processed"    
   
-  ErrorNotificationRequest:
-    type: object
-    properties:
-      RequestTimestamp:
-        type: string
-        description: Request processed time stamp in UTC
-        example: "2018-02-14T13:45:30"
-      RequestId:
-        type: string
-        description: unique Id for a request
-        example: "kyw3-5cyh-332c"
-      StatusCode:
-        type: string
-        description: The status code
-        example: "200"
-      StatusMessage:
-        type: array
-        description: Array of error messages
-        items:
-          type: string
-          example:
-            - Internal Server Error
-            - Object reference not set.
-        
-  ProductNotificationRequest:
-    type: object
-    description: The otification request that is delivered to the product endpoint when a notification is published by another product
-    properties:
-      institutionId:
-        type: string
-        description: Local institution id
-        example: "437483"
-      cbInstitutionId:
-        type: string
-        description: The Community Brands institution id
-        example: 51001435
-      eventName:
-        type: string
-        description: The name of the event against which the notification was published
-        example: ""
-      eventToken:
-        type: string
-        description: The unique token for the event. Use this token to acknowledge the event.
-        example: "55242"
-      messageType:
-        type: string
-        description: The name of the standard data type of the Payload
-        example: "Student"
-      acknowledgementRequired:
-        type: boolean
-        description: A value indicating whether the notifier has requested for acknowledgement or not
-        example: true
-      payload:
-        type: string
-        description: The serialized string of the actual data (standard data type) - MUST be same as the standard data type specified in the messageType field
-
-  NotificationAcknowledgeRequest:
-    type: object
-    properties:      
-      AcknowledgeTimestamp:
-        type: string
-        description: Acknowledgment time stamp in UTC
-        example: "2018-02-13T13:45:30"
-      RequestTimestamp:
-        type: string
-        description: Request processed time stamp in UTC
-        example: "2018-02-14T13:45:30"
-      EventToken:
-        type: string
-        description: Event token
-        example: "77455"
-      StatusCode:
-        type: string
-        description: Event token
-        example: "200"
-      StatusMessage:
-        type: string
-        description: successfully processed 
-        example: "Admissions successfully processed in TADS" 
-        
-  ErrorResponse:
-    type: object
-    properties:
-      code:
-        type: string
-        example: "ServiceNotProvided"
-      message:
-        type: string
-        example: "This requested service is not provided"
-      utcTimestamp:
-        type: string
-        example: "2012-04-21T18:25:43-05:00"
-    required:
-      - code
-      - message
-      - utcTimestamp
-      
   MessageResult:
     type: object
     properties:
-      message_id:
+      messageId:
         type: string
-        description: unique identifier for the message
-      result_type:
+        description: The messageId of the message whose result this is
+        example: "424d0716-2ed9-4e7b-86f3-c58dab1ab348"
+      resultType:
         type: string
-        example: "E_NOT_AUTHENTICATED"
+        description: The type of the result – must be one  of the predefined types
+        example: "E_DESTINATION_UNREACHABLE"
       description:
         type: string
-        description: human readable description of the error
-      payload_results:
+        description: A description of the error
+        example: "The delivery engine failed to pass the message to the downstream system"
+      origin:
         type: string
-        description: individual results for each record included in the original message. can be omitted if the result_type applies to all records in the original message
-        
+        description: "The origin of the message result. Must be one of the following: (1)CBIS – if the result originated in CBIS (2)TADS – if result originated in tads"
+        example: "CBIS.DeliveryHandler"
+      payloadType:
+        type: string
+        description: The standard model name to which the payload refers to. For example, if the message contains the results of Student admission then the payloadType will be “Student” 
+        example: "student"    
+      resultsPayload:
+        type: array
+        description: An array of results 
+        items:
+          $ref: "#/definitions/ResultsPayload"
+  
+  ResultsPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        description: The id of the entity
+        example: "99653"
+      resultType:
+        type: string
+        description: One of the predefined result types
+        example: "E_BAD_DATA"
+      description:
+        type: string
+        description: Description of the error
+        example: "The record could not be imported"
+
   
 # Global parameters
 parameters:
@@ -302,17 +185,3 @@ parameters:
     required: true
     description: "The Content type."
 
-# Descriptions of common responses          
-responses:
-  NotFound:
-    description: The specified resource was not found
-    schema:
-      $ref: "#/definitions/ErrorResponse"
-  Unauthorized:
-    description: Authentication information is missing or invalid
-    schema:
-      $ref: "#/definitions/ErrorResponse"
-  Conflict:
-    description: Conflict. Another entity with the same name already exists
-    schema:
-      $ref: "#/definitions/ErrorResponse"
